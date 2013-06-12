@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,14 +38,78 @@ namespace TnLEmuterm
 
         private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("Not implemented yet!  Sorry!");
+            if (!serialPort.IsOpen)
+            {
+                MessageBox.Show("Serial Port not Open, can not send file!");
+                return;
+            }
+            Stream file = null;
+
+
+            OpenFileDialog daDialog = new OpenFileDialog();
+            daDialog.Multiselect = false;
+            daDialog.CheckFileExists = true;
+            daDialog.ShowDialog();
+            try
+            {
+                file = daDialog.OpenFile();
+                byte[] buf = new byte[512];
+                int position = 0;
+                int bytesRead = 0;
+                while (position < file.Length)
+                {
+                    bytesRead = file.Read(buf, position, 512);
+                    serialPort.Write(buf, 0, bytesRead);
+                    position += bytesRead;
+                }
+            }
+            catch (Exception a)
+            {
+                MessageBox.Show("File can not be read.  Error:\r\n" + a.Message);
+                return;
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+
+
 
         }
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("Not implemented yet!  Sorry!");
+            Stream file = null;
 
+            SaveFileDialog daDialog = new SaveFileDialog();
+            daDialog.OverwritePrompt = true;
+            daDialog.ShowDialog();
+
+            try
+            {
+                file = daDialog.OpenFile();
+                byte[] bytes = new byte[textTerminal.TextLength * sizeof(char)];
+                System.Buffer.BlockCopy(textTerminal.Text.ToCharArray(), 0, bytes, 0, bytes.Length);
+                file.Write(bytes, 0, textTerminal.TextLength); 
+            }
+            catch (Exception a)
+            {
+                MessageBox.Show("File can not be read.  Error:\r\n" + a.Message);
+                return;
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+           
+
+            return;
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
