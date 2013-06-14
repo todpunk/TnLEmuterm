@@ -13,22 +13,30 @@ namespace TnLEmuterm
 {
     public partial class MainForm : Form
     {
-        public string RecievedText;
 
         public MainForm()
         {
             InitializeComponent();
 
-            serialPort.PortName = "SETME";
-            serialPort.BaudRate = 38400;
-            serialPort.DataBits = 8;
-            serialPort.StopBits = System.IO.Ports.StopBits.One;
-            serialPort.Parity = System.IO.Ports.Parity.None;
-            serialPort.Handshake = System.IO.Ports.Handshake.XOnXOff;
+            Config.serialPort.BaudRate = 38400;
+            Config.serialPort.DataBits = 8;
+            Config.serialPort.StopBits = System.IO.Ports.StopBits.One;
+            Config.serialPort.Parity = System.IO.Ports.Parity.None;
+            Config.serialPort.Handshake = System.IO.Ports.Handshake.XOnXOff;
 
-            statusStrip.Text = "Device: " + serialPort.PortName;
-            statusStrip.Text += "  Status: " + (serialPort.IsOpen ? "Open" : "Closed");
-            statusStrip.Text += "  Baud Rate: " + serialPort.BaudRate.ToString();
+            Config.ClearEditor = false;
+            Config.ShiftEnterSends = true;
+
+            Config.serialPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort_DataReceived);
+
+            updateStatus();
+        }
+
+        private void updateStatus()
+        {
+            toolStripStatusLabel1.Text = "Device: " + Config.serialPort.PortName;
+            toolStripStatusLabel1.Text += "  Status: " + (Config.serialPort.IsOpen ? "Open" : "Closed");
+            toolStripStatusLabel1.Text += "  Baud Rate: " + Config.serialPort.BaudRate.ToString();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -36,9 +44,20 @@ namespace TnLEmuterm
             Application.Exit();
         }
 
+        private void sendText()
+        {
+            if (!Config.serialPort.IsOpen) return;
+            Config.serialPort.Write(textSender.Text);
+            if (Config.ClearEditor)
+            {
+                textSender.Text = "";
+                textSender.Text.Trim();
+            }
+        }
+
         private void sendFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!serialPort.IsOpen)
+            if (!Config.serialPort.IsOpen)
             {
                 MessageBox.Show("Serial Port not Open, can not send file!");
                 return;
@@ -59,7 +78,7 @@ namespace TnLEmuterm
                 while (position < file.Length)
                 {
                     bytesRead = file.Read(buf, position, 512);
-                    serialPort.Write(buf, 0, bytesRead);
+                    Config.serialPort.Write(buf, 0, bytesRead);
                     position += bytesRead;
                 }
             }
@@ -75,9 +94,6 @@ namespace TnLEmuterm
                     file.Close();
                 }
             }
-
-
-
         }
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -114,28 +130,38 @@ namespace TnLEmuterm
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            serialPort.Open();
-            if (serialPort.IsOpen)
+            try
+            {
+                Config.serialPort.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can't open SerialPort.  Error: " + ex.Message);
+            }
+
+            if (Config.serialPort.IsOpen)
             {
                 connectToolStripMenuItem.Enabled = false;
                 disconnectToolStripMenuItem.Enabled = true;
             }
+            updateStatus();
         }
 
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (serialPort.IsOpen)
+            if (Config.serialPort.IsOpen)
             {
                 connectToolStripMenuItem.Enabled = true;
                 disconnectToolStripMenuItem.Enabled = false;
             }
-            serialPort.Close();
+            Config.serialPort.Close();
+            updateStatus();
        }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Settings(serialPort).Show();
-
+            new SettingsForm().ShowDialog();
+            updateStatus();
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -145,27 +171,36 @@ namespace TnLEmuterm
 
         private void sendJToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!serialPort.IsOpen) return;
-
-            serialPort.Write(textSender.Text);
-
-            // textSender.Text = "";
+            sendText();
         }
 
         private void serialPort_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            RecievedText = serialPort.ReadExisting();
+            Config.RecievedText = Config.serialPort.ReadExisting();
             this.Invoke(new EventHandler(DisplayText));
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (serialPort.IsOpen) serialPort.Close();
+            if (Config.serialPort.IsOpen) Config.serialPort.Close();
         }
 
         private void DisplayText(object sender, EventArgs e)
         {
-            textTerminal.AppendText(RecievedText);
+            textTerminal.AppendText(Config.RecievedText);
+        }
+
+        private void textSender_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+            if (Config.ShiftEnterSends && e.Shift && e.KeyCode == Keys.Return)
+            {
+                sendText();
+            }
+            else if (e.Control && e.KeyCode == Keys.A)
+            {
+                textSender.SelectAll();
+            }
         }
     }
 }

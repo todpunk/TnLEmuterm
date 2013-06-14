@@ -11,18 +11,15 @@ using System.Windows.Forms;
 
 namespace TnLEmuterm
 {
-    public partial class Settings : Form
+    public partial class SettingsForm : Form
     {
-        private System.IO.Ports.SerialPort serialPort;
-
-        public Settings(System.IO.Ports.SerialPort serialPort)
+        public SettingsForm()
         {
             InitializeComponent();
-            this.serialPort = serialPort;
-
-            portName.Text = this.serialPort.PortName;
-            baudRate.Text = this.serialPort.BaudRate.ToString();
-            dataBits.SelectedItem = this.serialPort.DataBits.ToString();
+            
+            portName.Text = Config.serialPort.PortName;
+            baudRate.Text = Config.serialPort.BaudRate.ToString();
+            dataBits.SelectedItem = Config.serialPort.DataBits.ToString();
 
             StopBits[] x = (StopBits[])(System.Enum.GetValues(typeof(StopBits)));
             // start at 1 to skip None if that's needed
@@ -30,15 +27,26 @@ namespace TnLEmuterm
             {
                 this.stopBits.Items.Add(x[i].ToString());
             }
-            this.stopBits.SelectedItem = this.serialPort.StopBits.ToString();
+            this.stopBits.SelectedItem = Config.serialPort.StopBits.ToString();
 
             Parity[] y = (Parity[])(System.Enum.GetValues(typeof(Parity)));
             for (int i = 0; i < y.Length; i++)
             {
                 this.parity.Items.Add(y[i].ToString());
             }
-            this.parity.SelectedItem = this.serialPort.Parity.ToString();
+            this.parity.SelectedItem = Config.serialPort.Parity.ToString();
 
+            clearEditorChk.Checked = Config.ClearEditor;
+            shiftEnterSendChk.Checked = Config.ShiftEnterSends;
+
+            if (Config.serialPort.IsOpen)
+            {
+                portName.Enabled = false;
+                baudRate.Enabled = false;
+                dataBits.Enabled = false;
+                stopBits.Enabled = false;
+                parity.Enabled = false;
+            }
         }
 
         private void AcceptButton_Click(object sender, EventArgs e)
@@ -56,11 +64,14 @@ namespace TnLEmuterm
             }
 
 
-            serialPort.PortName = portName.Text;
-            serialPort.BaudRate = temp;
-            serialPort.DataBits = int.Parse(dataBits.Text);
-            Enum.Parse(typeof(StopBits), stopBits.Text);
-            Enum.Parse(typeof(Parity), parity.Text);
+            Config.serialPort.PortName = portName.Text;
+            Config.serialPort.BaudRate = temp;
+            Config.serialPort.DataBits = int.Parse(dataBits.Text);
+            Config.serialPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), stopBits.Text);
+            Config.serialPort.Parity = (Parity)Enum.Parse(typeof(Parity), parity.Text);
+
+            Config.ClearEditor = clearEditorChk.Checked;
+            Config.ShiftEnterSends = shiftEnterSendChk.Checked;
 
             this.Close();
         }

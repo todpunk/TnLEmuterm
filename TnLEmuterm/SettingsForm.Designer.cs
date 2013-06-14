@@ -1,7 +1,7 @@
 ﻿using System.IO.Ports;
 namespace TnLEmuterm
 {
-    partial class Settings
+    partial class SettingsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -41,6 +41,8 @@ namespace TnLEmuterm
             this.parity = new System.Windows.Forms.ComboBox();
             this.acceptButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
+            this.clearEditorChk = new System.Windows.Forms.CheckBox();
+            this.shiftEnterSendChk = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -131,31 +133,53 @@ namespace TnLEmuterm
             this.parity.Size = new System.Drawing.Size(125, 21);
             this.parity.TabIndex = 4;
             // 
-            // AcceptButton
+            // acceptButton
             // 
-            this.acceptButton.Location = new System.Drawing.Point(36, 142);
-            this.acceptButton.Name = "AcceptButton";
+            this.acceptButton.Location = new System.Drawing.Point(36, 208);
+            this.acceptButton.Name = "acceptButton";
             this.acceptButton.Size = new System.Drawing.Size(75, 23);
             this.acceptButton.TabIndex = 5;
             this.acceptButton.Text = "Accept";
             this.acceptButton.UseVisualStyleBackColor = true;
             this.acceptButton.Click += new System.EventHandler(this.AcceptButton_Click);
             // 
-            // CancelButton
+            // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(137, 142);
-            this.cancelButton.Name = "CancelButton";
+            this.cancelButton.Location = new System.Drawing.Point(137, 208);
+            this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 6;
             this.cancelButton.Text = "Cancel";
             this.cancelButton.UseVisualStyleBackColor = true;
             this.cancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
+            // clearEditorChk
+            // 
+            this.clearEditorChk.AutoSize = true;
+            this.clearEditorChk.Location = new System.Drawing.Point(12, 152);
+            this.clearEditorChk.Name = "clearEditorChk";
+            this.clearEditorChk.Size = new System.Drawing.Size(123, 17);
+            this.clearEditorChk.TabIndex = 7;
+            this.clearEditorChk.Text = "Clear Editor on Send";
+            this.clearEditorChk.UseVisualStyleBackColor = true;
+            // 
+            // shiftEnterSendChk
+            // 
+            this.shiftEnterSendChk.AutoSize = true;
+            this.shiftEnterSendChk.Location = new System.Drawing.Point(12, 179);
+            this.shiftEnterSendChk.Name = "shiftEnterSendChk";
+            this.shiftEnterSendChk.Size = new System.Drawing.Size(111, 17);
+            this.shiftEnterSendChk.TabIndex = 7;
+            this.shiftEnterSendChk.Text = "Shift+Enter Sends";
+            this.shiftEnterSendChk.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(251, 175);
+            this.ClientSize = new System.Drawing.Size(254, 242);
+            this.Controls.Add(this.shiftEnterSendChk);
+            this.Controls.Add(this.clearEditorChk);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.acceptButton);
             this.Controls.Add(this.parity);
@@ -168,6 +192,8 @@ namespace TnLEmuterm
             this.Controls.Add(this.label2);
             this.Controls.Add(this.portName);
             this.Controls.Add(this.label1);
+            this.MaximumSize = new System.Drawing.Size(270, 280);
+            this.MinimumSize = new System.Drawing.Size(270, 280);
             this.Name = "Settings";
             this.Text = "Settings";
             this.ResumeLayout(false);
@@ -189,5 +215,7 @@ namespace TnLEmuterm
         private System.Windows.Forms.ComboBox parity;
         private System.Windows.Forms.Button acceptButton;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.CheckBox clearEditorChk;
+        private System.Windows.Forms.CheckBox shiftEnterSendChk;
     }
 }
